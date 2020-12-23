@@ -201,3 +201,5 @@ export default router;
 After adding basic login, logout, and admin pages, you are good to go for your web/app development. Do whatever you want from there.
 
 ### Sample app
+
+See [Sample branch](https://github.com/thruthesky/fireadmin/tree/sample) of admin site.
