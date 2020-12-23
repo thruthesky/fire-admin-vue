@@ -202,4 +202,4 @@ After adding basic login, logout, and admin pages, you are good to go for your w
 
 ### Sample app
 
-See [Sample branch](https://github.com/thruthesky/fireadmin/tree/sample) of admin site.
+See [Sample branch](https://github.com/thruthesky/fireadmin/tree/sample) of sample admin site.
