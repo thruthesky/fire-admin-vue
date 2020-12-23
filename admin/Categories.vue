@@ -48,7 +48,6 @@
 
 <script lang="ts">
 import { Vue } from "vue-class-component";
-import { AppService } from "@/fire-admin-vue/services/app.service";
 import firebase from "firebase/app";
 import "firebase/firestore";
 

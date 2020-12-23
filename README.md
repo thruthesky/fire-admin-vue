@@ -23,7 +23,7 @@ npm i firebase algoliasearch
 
 ### Initializing admin page
 
-- You need to initialize firebase. The `main.ts` is a good place to do it.
+- You need to initialize firebase. The `main.ts` is a good place to do it. See `AppService` instance has registered in global data object.
 
 ```js
 // ...
@@ -32,12 +32,24 @@ firebase.initializeApp({
   /* ... firebase config ... */
 });
 import { AppService } from "@/fire-admin-vue/services/app.service";
+import { createApp } from "vue";
+import App from "./App.vue";
+import "./registerServiceWorker";
+import router from "./router";
+import store from "./store";
 
+import firebase from "firebase/app";
+import { firebaseConfig } from "../app.config";
+
+firebase.initializeApp(firebaseConfig);
+import { AppService } from "@/fire-admin-vue/services/app.service";
+/// Create AppService instance only one time.
+const appService = new AppService();
 createApp(App)
   .mixin({
     data() {
       return {
-        app: new AppService() // to use `app` every where.
+        app: appService /// Don't instantiate AppService() here.
       };
     }
   })
@@ -187,3 +199,5 @@ export default router;
 ### Customization
 
 After adding basic login, logout, and admin pages, you are good to go for your web/app development. Do whatever you want from there.
+
+### Sample app

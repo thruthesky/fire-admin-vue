@@ -17,7 +17,6 @@
   </section>
 </template>
 <script lang="ts">
-import { AppService } from "@/fire-admin-vue/services/app.service";
 import { Vue } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/firestore";
