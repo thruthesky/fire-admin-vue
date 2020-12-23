@@ -70,10 +70,7 @@
 import { Vue } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/firestore";
-import { AppService } from "@/services/app.service";
-import { proxy } from "@/services/functions";
 export default class Users extends Vue {
-  app = new AppService();
   limit = 30;
   users: any[] = [];
   fetching = false;
@@ -169,7 +166,7 @@ export default class Users extends Vue {
   onDelete(uid: string) {
     console.log(uid);
     try {
-      this.app.userDelete(uid);
+      (this.$data as any).app.userDelete(uid);
     } catch (e) {
       console.log(e);
     }
@@ -177,7 +174,7 @@ export default class Users extends Vue {
   onDeleteSelectedUsers() {
     const conf = confirm("Delete Selected Users?");
     if (!conf) return;
-    const uids = proxy(this.checkbox);
+    const uids = this.checkbox;
     this.onDelete(uids);
   }
   onSelectAllUsers() {

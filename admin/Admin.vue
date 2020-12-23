@@ -32,15 +32,11 @@
 
 <script lang="ts">
 import { Options, Vue } from "vue-class-component";
-import LoginForm from "../components/LoginForm.vue"; // @ is an alias to /src
-import { AppService } from "@/services/app.service";
-
+import LoginForm from "../components/LoginForm.vue";
 @Options({
   components: {
     LoginForm
   }
 })
-export default class Login extends Vue {
-  app = new AppService();
-}
+export default class Login extends Vue {}
 </script>

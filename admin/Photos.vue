@@ -28,10 +28,8 @@
 import { Vue } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/storage";
-import { AppService } from "@/services/app.service";
 
 export default class Posts extends Vue {
-  app = new AppService();
   limit = 20;
   storageRef = firebase.storage().ref();
   paths = ["forum-photos", "user-profile-photos"];
@@ -57,7 +55,7 @@ export default class Posts extends Vue {
     this.loading = true;
     const folderRef = this.storageRef.child(this.path);
     const options: any = {
-      maxResults: 20,
+      maxResults: 20
     };
     if (this.nextPageToken) options["pageToken"] = this.nextPageToken;
     const res = await folderRef.list(options);
@@ -71,7 +69,7 @@ export default class Posts extends Vue {
     res.items.forEach(async (item) => {
       const data = {
         url: "",
-        uid: "",
+        uid: ""
       };
       data.url = await item.getDownloadURL();
       const metaData = await item.getMetadata();
@@ -92,15 +90,15 @@ export default class Posts extends Vue {
   }
 
   async onClickDelete(url: string) {
-    url = this.app.getStorageFileFromUrl(url, this.path);
+    url = (this.$data as any).getStorageFileFromUrl(url, this.path);
     try {
-      await this.app.fileDelete(url);
+      await (this.$data as any).fileDelete(url);
       const pos = this.photos.findIndex((e) => e.includes(url.split("/")[1]));
       this.photos.splice(pos, 1);
 
-      this.app.alert("success file deletion.");
+      (this.$data as any).alert("success file deletion.");
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).error(e);
     }
   }
 }

@@ -64,10 +64,9 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/storage";
 import PostComponent from "./Post-component.vue";
-import { AppService } from "@/services/app.service";
 
 import algoliasearch from "algoliasearch";
-import { Settings } from "@/services/settings.service";
+import { Settings } from "@/fire-admin-vue/services/settings";
 
 @Options({
   props: ["category", "categories"],
@@ -76,7 +75,6 @@ import { Settings } from "@/services/settings.service";
 export default class PostsCreateComponent extends Vue {
   postsCol = firebase.firestore().collection("posts");
   storage = firebase.storage();
-  app = new AppService();
 
   categories!: string[];
   category!: string;
@@ -138,7 +136,7 @@ export default class PostsCreateComponent extends Vue {
       /// This does not throw exception even if there is an error.
       await index.saveObject(data);
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).app.error(e);
     }
 
     this.newPostData.title = "";
@@ -149,7 +147,7 @@ export default class PostsCreateComponent extends Vue {
 
   async onImageChanged(event: any) {
     const file: File = event.target.files[0];
-    const filename = this.app.getRandomString();
+    const filename = (this.$data as any).app.getRandomString();
 
     const ref = this.storage.ref(this.forumPhotosFolder + "/" + filename);
     const customMeta = { uid: firebase.auth().currentUser?.uid as string };
@@ -170,18 +168,21 @@ export default class PostsCreateComponent extends Vue {
       await task;
       const url = await ref.getDownloadURL();
       this.newPostData.files.push(url);
-      this.app.alert("Upload success!");
+      (this.$data as any).app.alert("Upload success!");
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).app.error(e);
     }
   }
 
   async onClickDeleteFile(url: string) {
     console.log(url);
-    url = this.app.getStorageFileFromUrl(url, this.forumPhotosFolder);
+    url = (this.$data as any).app.getStorageFileFromUrl(
+      url,
+      this.forumPhotosFolder
+    );
 
     try {
-      await this.app.fileDelete(url);
+      await (this.$data as any).app.fileDelete(url);
       const pos = this.newPostData.files.findIndex((e: string) => e == url);
       this.newPostData.files.splice(pos, 1);
 

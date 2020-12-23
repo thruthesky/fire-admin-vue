@@ -34,7 +34,6 @@
 
 <script lang="ts">
 import { Vue } from "vue-class-component";
-import { proxy } from "../../../services/functions";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
@@ -59,9 +58,7 @@ export default class CategorySettings extends Vue {
   }
   async onSave() {
     try {
-      await this.col
-        .doc(this.category.id)
-        .set(proxy(this.category), { merge: true });
+      await this.col.doc(this.category.id).set(this.category, { merge: true });
       alert(
         "Settings for " + this.category.id + " category successfully updated"
       );

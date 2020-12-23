@@ -17,15 +17,14 @@
 </template>
 
 <script lang="ts">
-import { AppService } from "@/services/app.service";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { Vue } from "vue-class-component";
-
+import { Vue, Options } from "vue-class-component";
+@Options({
+  emits: ["success", "error"]
+})
 export default class LoginForm extends Vue {
-  app = new AppService();
-
   form: any = {};
 
   async onSubmit() {
@@ -33,9 +32,10 @@ export default class LoginForm extends Vue {
       const credential = await firebase
         .auth()
         .signInWithEmailAndPassword(this.form.email, this.form.password);
-      this.app.alert("login success");
+      this.$emit("success");
     } catch (e) {
-      this.app.error(e);
+      console.error(e);
+      this.$emit("error", e);
     }
     return;
   }

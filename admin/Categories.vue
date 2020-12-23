@@ -48,19 +48,17 @@
 
 <script lang="ts">
 import { Vue } from "vue-class-component";
-import { proxy } from "../../services/functions";
-import { AppService } from "@/services/app.service";
+import { AppService } from "@/fire-admin-vue/services/app.service";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
 export default class Categories extends Vue {
-  app = new AppService();
   col = firebase.firestore().collection("categories");
 
   newCategory = {
     id: "",
     title: "",
-    description: "",
+    description: ""
   };
 
   categories: any[] = [];
@@ -86,14 +84,14 @@ export default class Categories extends Vue {
     const docRef = this.col.doc(this.newCategory.id);
     console.log(this.newCategory);
     try {
-       await docRef.set(this.newCategory);
-      this.categories.push(proxy(this.newCategory));
+      await docRef.set(this.newCategory);
+      this.categories.push(this.newCategory);
       this.newCategory.id = "";
       this.newCategory.title = "";
       this.newCategory.description = "";
-      this.app.alert("Category created!");
+      (this.$data as any).app.alert("Category created!");
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).error(e);
     }
   }
 
@@ -101,7 +99,7 @@ export default class Categories extends Vue {
     this.categories.map((category) => {
       this.col.doc(category["id"]).update({
         title: category.title ?? "",
-        description: category.description ?? "",
+        description: category.description ?? ""
       });
     });
   }
@@ -113,9 +111,9 @@ export default class Categories extends Vue {
       await this.col.doc(id).delete();
       const i = this.categories.findIndex((cat) => cat.id == id);
       this.categories.splice(i, 1);
-      this.app.alert("Category " + id + " deleted!");
+      (this.$data as any).alert("Category " + id + " deleted!");
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).error(e);
     }
   }
 }

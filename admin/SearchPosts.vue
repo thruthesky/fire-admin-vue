@@ -17,13 +17,13 @@
   </section>
 </template>
 <script lang="ts">
-import { AppService } from "@/services/app.service";
+import { AppService } from "@/fire-admin-vue/services/app.service";
 import { Vue } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/storage";
 import algoliasearch from "algoliasearch";
-import { Settings } from "@/services/settings.service";
+import { Settings } from "@/fire-admin-vue/services/settings";
 
 export default class SearchPosts extends Vue {
   keyword = "";

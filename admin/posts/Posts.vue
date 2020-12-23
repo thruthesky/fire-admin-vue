@@ -79,7 +79,6 @@
 </template>
 
 <script lang="ts">
-import { AppService } from "@/services/app.service";
 import { Vue, Options } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/firestore";
@@ -98,8 +97,6 @@ export default class Posts extends Vue {
   categoriesCol = firebase.firestore().collection("categories");
   postsCol = firebase.firestore().collection("posts");
   storage = firebase.storage();
-
-  app = new AppService();
 
   uploadProgress = 0;
   limit = 30;

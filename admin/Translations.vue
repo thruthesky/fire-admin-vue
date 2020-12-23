@@ -1,8 +1,8 @@
 <template>
   <div class="translations">
     <h1>Translations Page</h1>
-    <br>
-    <br>
+    <br />
+    <br />
     <table class="table">
       <tr>
         <td>
@@ -24,7 +24,8 @@
         </td>
       </tr>
     </table>
-    <br>
+
+    <br />
     <table class="table">
       <tr>
         <th>CODE</th>
@@ -43,6 +44,7 @@
         </td>
       </tr>
     </table>
+
     <p v-show="translations.length < 1">No translations yet</p>
     <p v-show="fetchingTranslations">Loading translation list ..</p>
   </div>
@@ -50,7 +52,6 @@
 
 <script lang="ts">
 import { Vue } from "vue-class-component";
-import { proxy } from "../../services/functions";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
@@ -109,7 +110,6 @@ export default class Categories extends Vue {
   }
 
   onSave(translationCode: string) {
-
     this.languageCodes.forEach(async (lc) => {
       const data: any = {};
       if (!this.translations[translationCode]) {
@@ -133,7 +133,6 @@ export default class Categories extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss" scoped>
 .table {

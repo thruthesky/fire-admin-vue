@@ -227,7 +227,6 @@ import { Options, Vue } from "vue-class-component";
 
 import firebase from "firebase/app";
 import "firebase/firestore";
-import { proxy } from "@/services/functions";
 
 @Options({
   components: {}
@@ -294,7 +293,7 @@ export default class Purchases extends Vue {
 
   async search() {
     // console.log("getting purchases");
-    const data = proxy(this.form);
+    const data: any = this.form;
 
     const dAt = new Date(this.startDate);
     // console.log(dAt);
@@ -354,7 +353,7 @@ export default class Purchases extends Vue {
         (bdate.getUTCMonth() + 1) +
         "-" +
         bdate.getUTCDate();
-      if (proxy(this.form).status == "success") {
+      if (this.form.status == "success") {
         const currencyCode =
           data.purchaseDetails.skProduct.priceLocale.currencyCode;
         const price = parseInt(data.purchaseDetails.skProduct.price);

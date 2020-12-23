@@ -15,15 +15,12 @@
 </template>
 
 <script lang="ts">
-import { AppService } from "@/services/app.service";
 import firebase from "firebase/app";
 import "firebase/auth";
 
 import { Vue } from "vue-class-component";
 
 export default class RegisterForm extends Vue {
-  app = new AppService();
-
   form: any = {};
 
   async onSubmit() {
@@ -31,9 +28,9 @@ export default class RegisterForm extends Vue {
       const credential = await firebase
         .auth()
         .createUserWithEmailAndPassword(this.form.email, this.form.password);
-     this.app.alert("registered uid: " + credential?.user?.uid);
+      (this.$data as any).app.alert("registered uid: " + credential?.user?.uid);
     } catch (e) {
-      this.app.error(e);
+      (this.$data as any).app.error(e);
     }
     return;
   }
