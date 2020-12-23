@@ -18,8 +18,11 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 
-import { Vue } from "vue-class-component";
+import { Vue, Options } from "vue-class-component";
 
+@Options({
+  emits: ["success", "error"]
+})
 export default class RegisterForm extends Vue {
   form: any = {};
 
@@ -28,9 +31,11 @@ export default class RegisterForm extends Vue {
       const credential = await firebase
         .auth()
         .createUserWithEmailAndPassword(this.form.email, this.form.password);
-      (this.$data as any).app.alert("registered uid: " + credential?.user?.uid);
+      // (this.$data as any).app.alert("registered uid: " + credential?.user?.uid);
+      this.$emit("success");
     } catch (e) {
-      (this.$data as any).app.error(e);
+      // (this.$data as any).app.error(e);
+      this.$emit("error", e);
     }
     return;
   }

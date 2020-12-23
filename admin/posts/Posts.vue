@@ -17,7 +17,7 @@
       :categories="categories"
       @on-created="onPostCreated($event)"
     ></post-create-component>
-
+    <hr />
     <!-- delete selected button / search bar -->
     <div class="d-flex mt-5">
       <button

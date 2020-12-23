@@ -1,5 +1,13 @@
 <template>
   <div class="border p-3">
+    <div>
+      <select class="mx-3" v-if="!category" v-model="newPostData.category">
+        <option disabled value="">Category</option>
+        <option v-for="category of categories" :key="category">
+          {{ category }}
+        </option>
+      </select>
+    </div>
     <!-- title -->
     <b>Title</b>
     <input
@@ -10,14 +18,16 @@
       class="mb-3 w-100"
     />
     <!-- content -->
-    <b>Content</b>
-    <textarea
-      name="content"
-      id="content"
-      v-model="newPostData.content"
-      class="mb-3 w-100"
-      style="min-height: 150px;"
-    />
+    <div>
+      <b>Content</b>
+      <textarea
+        name="content"
+        id="content"
+        v-model="newPostData.content"
+        class="mb-3 w-100"
+        style="min-height: 150px;"
+      />
+    </div>
     <!-- files -->
     <div v-if="newPostData.files.length" class="d-flex m-2">
       <div
@@ -44,13 +54,6 @@
         id="image_upload"
         v-on:change="onImageChanged($event)"
       />
-      <select class="mx-3" v-if="!category" v-model="newPostData.category">
-        <option disabled value="">Category</option>
-        <option v-for="category of categories" :key="category">
-          {{ category }}
-        </option>
-      </select>
-      <span class="flex-grow-1"></span>
       <button class="btn-success" type="button" @click="onCreate()">
         Create
       </button>

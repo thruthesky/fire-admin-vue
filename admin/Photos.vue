@@ -15,7 +15,7 @@
         <button
           class="position-absolute top left"
           type="button"
-          @click="onClickDelete(url)"
+          @click="onClickDelete(photo.url)"
         >
           Delete
         </button>
@@ -90,15 +90,15 @@ export default class Posts extends Vue {
   }
 
   async onClickDelete(url: string) {
-    url = (this.$data as any).getStorageFileFromUrl(url, this.path);
+    url = (this.$data as any).app.getStorageFileFromUrl(url, this.path);
     try {
-      await (this.$data as any).fileDelete(url);
+      await (this.$data as any).app.fileDelete(url);
       const pos = this.photos.findIndex((e) => e.includes(url.split("/")[1]));
       this.photos.splice(pos, 1);
 
-      (this.$data as any).alert("success file deletion.");
+      (this.$data as any).app.alert("success file deletion.");
     } catch (e) {
-      (this.$data as any).error(e);
+      (this.$data as any).app.error(e);
     }
   }
 }
