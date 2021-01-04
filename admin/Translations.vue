@@ -10,22 +10,39 @@
           <input type="text" name="newLanguange" v-model="newLanguangeCode" />
           <button @click="addNewLanguageCode">Add Language Code</button>
         </td>
-        <td style="width: 1em"></td>
+      </tr>
+    </table>
+
+    <h4>Add new translation</h4>
+    <table class="table">
+      <tr>
+        <th>Code</th>
+        <th v-for="lc of languageCodes" :key="lc">
+          {{ lc }}
+        </th>
+        <th>Actions</th>
+      </tr>
+      <tr>
         <td>
-          <label for="newTranslationCode">New Translation (code): </label>
           <input
             type="text"
             name="newTranslationCode"
             v-model="newTranslationCode"
           />
-          <button @click="onSave(newTranslationCode)">
-            Add Translation Code
-          </button>
+        </td>
+        <td v-for="lc of languageCodes" :key="lc">
+          <input type="text" :name="'newTranslation' + lc" />
+        </td>
+        <td>
+          <button @click="void 0">Add</button>
         </td>
       </tr>
     </table>
 
+    <!-- {{ translations }} -->
+
     <br />
+    <h4>Translations table</h4>
     <table class="table">
       <tr>
         <th>CODE</th>
@@ -37,11 +54,22 @@
       <tr v-for="(value, name) in translations" :key="name">
         <td>{{ name }}</td>
         <td v-for="lc in languageCodes" :key="lc">
-          <input class="input-item" type="text" v-model="value[lc]" @change="onSave(name)" />
+          <input
+            class="input-item"
+            type="text"
+            v-model="value[lc]"
+            @focus="translations[name]['editting'] = true"
+            @blur="translations[name]['editting'] = false"
+            @change="onSave(name)"
+          />
         </td>
         <td>
-          <!-- <button type="button" @click="onSave(name)">Save</button> -->
-          <button type="button" style="color: red;" @click="onDelete(name)">Delete</button>
+          <button type="button" style="color: red" @click="onDelete(name)">
+            Delete
+          </button>
+          <span v-if="translations[name]['editting']">Editting ...</span>
+          <span v-if="translations[name]['saving']">Saving ...</span>
+          <span v-if="translations[name]['savingDone']">Done</span>
         </td>
       </tr>
     </table>
@@ -111,6 +139,8 @@ export default class Categories extends Vue {
   }
 
   onSave(translationCode: string) {
+    if (this.translations[translationCode]["saving"]) return;
+    this.translations[translationCode]["saving"] = true;
     setTimeout(() => {
       this.languageCodes.forEach(async (lc) => {
         const data: any = {};
@@ -131,7 +161,13 @@ export default class Categories extends Vue {
           alert(e);
         }
       });
-      alert("translations updated!");
+      this.translations[translationCode]["saving"] = false;
+      this.translations[translationCode]["savingDone"] = true;
+      setTimeout(
+        () => (this.translations[translationCode]["savingDone"] = false),
+        1000
+      );
+      // alert("translations updated!");
     }, 400);
   }
 
