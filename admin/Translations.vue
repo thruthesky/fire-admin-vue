@@ -31,10 +31,10 @@
           />
         </td>
         <td v-for="lc of languageCodes" :key="lc">
-          <input type="text" :name="'newTranslation' + lc" />
+          <input type="text" v-model="newTranslationTexts[lc]" />
         </td>
         <td>
-          <button @click="void 0">Add</button>
+          <button @click="onAddNewTranslationCode">Add</button>
         </td>
       </tr>
     </table>
@@ -51,25 +51,21 @@
         </th>
         <th>ACTIONS</th>
       </tr>
-      <tr v-for="(value, name) in translations" :key="name">
-        <td>{{ name }}</td>
+      <tr v-for="(texts, code) in translations" :key="code">
+        <td>{{ code }}</td>
         <td v-for="lc in languageCodes" :key="lc">
           <input
             class="input-item"
             type="text"
-            v-model="value[lc]"
-            @focus="translations[name]['editting'] = true"
-            @blur="translations[name]['editting'] = false"
-            @change="onSave(name)"
+            v-model="texts[lc]"
+            @keyup="textChanges.next({ code: code, lc: lc })"
           />
         </td>
         <td>
-          <button type="button" style="color: red" @click="onDelete(name)">
+          <span v-if="translations[code]['loading']">Saving...</span>
+          <button type="button" style="color: red" @click="onDelete(code)">
             Delete
           </button>
-          <span v-if="translations[name]['editting']">Editting ...</span>
-          <span v-if="translations[name]['saving']">Saving ...</span>
-          <span v-if="translations[name]['savingDone']">Done</span>
         </td>
       </tr>
     </table>
@@ -83,13 +79,20 @@
 import { Vue } from "vue-class-component";
 import firebase from "firebase/app";
 import "firebase/firestore";
+import { Subject } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 export default class Categories extends Vue {
+  /**
+   * @deprecated
+   */
   col = firebase.firestore().collection("translations");
+  translationsCol = firebase.firestore().collection("translations");
   fetchingTranslations = false;
 
   newLanguangeCode = "";
   newTranslationCode = "";
+  newTranslationTexts: any = {};
 
   languageCodes: string[] = [];
   translations: {
@@ -98,25 +101,31 @@ export default class Categories extends Vue {
     };
   } = {};
 
+  textChanges = new Subject();
+
   created() {
     this.fetchTranslations();
+
+    this.textChanges.pipe(debounceTime(400)).subscribe((data: any) => {
+      this.saveText(data.code, data.lc);
+    });
   }
 
   async fetchTranslations() {
     this.fetchingTranslations = true;
-    const res = await this.col.get();
-    res.docs.forEach((doc) => {
-      const lc = doc.id;
-      this.languageCodes.push(lc);
-      const data = doc.data();
-      const keys = Object.keys(data);
-
-      keys.forEach((key) => {
-        if (!this.translations[key]) this.translations[key] = {};
-        this.translations[key][lc] = data[key];
+    const res = await this.translationsCol.onSnapshot((snapshots) => {
+      snapshots.docs.forEach((doc) => {
+        const lc = doc.id;
+        if (!this.languageCodes.includes(lc)) this.languageCodes.push(lc);
+        const data = doc.data();
+        let codes = Object.keys(data);
+        codes = codes.sort();
+        codes.forEach((code) => {
+          if (!this.translations[code]) this.translations[code] = {};
+          this.translations[code][lc] = data[code];
+        });
       });
     });
-    this.fetchingTranslations = false;
   }
 
   async addNewLanguageCode() {
@@ -178,7 +187,7 @@ export default class Categories extends Vue {
     this.languageCodes.forEach(async (lc) => {
       try {
         this.col.doc(lc).update({
-          [translationCode]: firebase.firestore.FieldValue.delete(),
+          [translationCode]: firebase.firestore.FieldValue.delete()
         });
         delete this.translations[translationCode];
       } catch (e) {
@@ -186,6 +195,41 @@ export default class Categories extends Vue {
       }
     });
     alert("translation for " + translationCode + " deleted!");
+  }
+
+  onAddNewTranslationCode() {
+    console.log(this.newTranslationCode, this.newTranslationTexts);
+
+    this.languageCodes.forEach(async (lc) => {
+      /// TODO: warn if the same key exists.
+
+      try {
+        await this.translationsCol
+          .doc(lc)
+          .set(
+            { [this.newTranslationCode]: this.newTranslationTexts[lc] },
+            { merge: true }
+          );
+
+        this.newTranslationCode = "";
+        this.newTranslationTexts = {};
+      } catch (e) {
+        alert(e);
+      }
+    });
+  }
+
+  async saveText(code: string, lc: string) {
+    console.log(code, lc, this.translations[code][lc]);
+
+    this.translations[code]["loading"] = true;
+    await this.translationsCol
+      .doc(lc)
+      .set({ [code]: this.translations[code][lc] }, { merge: true });
+
+    setTimeout(() => {
+      delete this.translations[code]["loading"];
+    }, 500);
   }
 }
 </script>
