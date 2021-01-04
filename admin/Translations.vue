@@ -149,7 +149,7 @@ export default class Categories extends Vue {
         alert(e);
       }
     });
-    alert("translation " + translationCode + " deleted!");
+    alert("translation for " + translationCode + " deleted!");
   }
 }
 </script>
