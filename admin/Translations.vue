@@ -10,7 +10,7 @@
           <input type="text" name="newLanguange" v-model="newLanguangeCode" />
           <button @click="addNewLanguageCode">Add Language Code</button>
         </td>
-        <td style="width: 1em;"></td>
+        <td style="width: 1em"></td>
         <td>
           <label for="newTranslationCode">New Translation (code): </label>
           <input
@@ -37,10 +37,11 @@
       <tr v-for="(value, name) in translations" :key="name">
         <td>{{ name }}</td>
         <td v-for="lc in languageCodes" :key="lc">
-          <input class="input-item" type="text" v-model="value[lc]" />
+          <input class="input-item" type="text" v-model="value[lc]" @change="onSave(name)" />
         </td>
         <td>
-          <button type="button" @click="onSave(name)">Save</button>
+          <!-- <button type="button" @click="onSave(name)">Save</button> -->
+          <button type="button" style="color: red;" @click="onDelete(name)">Delete</button>
         </td>
       </tr>
     </table>
@@ -110,26 +111,45 @@ export default class Categories extends Vue {
   }
 
   onSave(translationCode: string) {
-    this.languageCodes.forEach(async (lc) => {
-      const data: any = {};
-      if (!this.translations[translationCode]) {
-        data[translationCode] = "";
-      } else {
-        data[translationCode] = this.translations[translationCode][lc];
-      }
-
-      try {
-        await this.col.doc(lc).set(data, { merge: true });
+    setTimeout(() => {
+      this.languageCodes.forEach(async (lc) => {
+        const data: any = {};
         if (!this.translations[translationCode]) {
-          this.translations[translationCode] = {};
+          data[translationCode] = "";
+        } else {
+          data[translationCode] = this.translations[translationCode][lc];
         }
-        this.translations[translationCode][lc] = data[translationCode];
-        this.newTranslationCode = "";
+
+        try {
+          await this.col.doc(lc).set(data, { merge: true });
+          if (!this.translations[translationCode]) {
+            this.translations[translationCode] = {};
+          }
+          this.translations[translationCode][lc] = data[translationCode];
+          this.newTranslationCode = "";
+        } catch (e) {
+          alert(e);
+        }
+      });
+      alert("translations updated!");
+    }, 400);
+  }
+
+  onDelete(translationCode: string) {
+    const conf = confirm("Delete translation for " + translationCode + "?");
+    if (!conf) return;
+
+    this.languageCodes.forEach(async (lc) => {
+      try {
+        this.col.doc(lc).update({
+          [translationCode]: firebase.firestore.FieldValue.delete(),
+        });
+        delete this.translations[translationCode];
       } catch (e) {
         alert(e);
       }
     });
-    alert("translations updated!");
+    alert("translation " + translationCode + " deleted!");
   }
 }
 </script>
