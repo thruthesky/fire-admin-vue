@@ -67,18 +67,8 @@
           </button>
         </td>
         <td>
-          <img
-            v-if="translations[code]['loading']"
-            src="@/assets/loading.gif"
-            height="50"
-            width="50"
-          />
-          <img
-            v-if="translations[code]['saved']"
-            src="@/assets/checked.png"
-            height="50"
-            width="50"
-          />
+          <span v-if="translations[code]['loading']">Saving...</span>
+          <span v-if="translations[code]['saved']">Saved!!</span>
         </td>
       </tr>
     </table>
