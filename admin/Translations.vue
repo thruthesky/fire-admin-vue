@@ -67,8 +67,8 @@
           </button>
         </td>
         <td>
-          <span v-if="translations[code]['loading']">Saving...</span>
-          <span v-if="translations[code]['saved']">Saved!!</span>
+          <span v-if="translations[code]['loading']">Saving.</span>
+          <span v-if="translations[code]['saved']">Saved!</span>
         </td>
       </tr>
     </table>
