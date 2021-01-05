@@ -190,6 +190,7 @@ export default class Categories extends Vue {
   }
 
   async saveText(code: string, lc: string) {
+    if (this.translations[code]["loading"]) return;
     this.translations[code]["loading"] = true;
     try {
       await this.translationsCol
