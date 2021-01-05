@@ -76,12 +76,11 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import { Subject } from "rxjs";
 import { debounceTime } from "rxjs/operators";
+import { AppService } from "../services/app.service";
 
 export default class Categories extends Vue {
-  /**
-   * @deprecated
-   */
-  col = firebase.firestore().collection("translations");
+  app = new AppService();
+
   translationsCol = firebase.firestore().collection("translations");
   fetchingTranslations = false;
 
@@ -133,12 +132,12 @@ export default class Categories extends Vue {
     });
 
     try {
-      await this.col.doc(this.newLanguangeCode).set(data);
+      await this.translationsCol.doc(this.newLanguangeCode).set(data);
       this.languageCodes.push(this.newLanguangeCode);
       this.newLanguangeCode = "";
       alert("New language code added!");
     } catch (e) {
-      alert(e);
+      this.app.error(e);
     }
   }
 
@@ -148,20 +147,24 @@ export default class Categories extends Vue {
 
     this.languageCodes.forEach(async (lc) => {
       try {
-        this.col.doc(lc).update({
+        this.translationsCol.doc(lc).update({
           [translationCode]: firebase.firestore.FieldValue.delete(),
         });
         delete this.translations[translationCode];
       } catch (e) {
-        alert(e);
+        this.app.error(e);
       }
     });
     alert("translation for " + translationCode + " deleted!");
   }
 
   onAddNewTranslationCode() {
+    if (!this.newLanguangeCode) {
+      return this.app.error("Please enter translation code");
+    }
+
     if (this.translations[this.newTranslationCode]) {
-      return alert("translation code already exists");
+      return this.app.error("translation code already exists");
     }
 
     this.languageCodes.forEach(async (lc) => {
@@ -176,7 +179,7 @@ export default class Categories extends Vue {
         this.newTranslationCode = "";
         this.newTranslationTexts = {};
       } catch (e) {
-        alert(e);
+        this.app.error(e);
       }
     });
   }
@@ -192,7 +195,7 @@ export default class Categories extends Vue {
         delete this.translations[code]["loading"];
       }, 500);
     } catch (e) {
-      alert(e);
+      this.app.error(e);
     }
   }
 }
