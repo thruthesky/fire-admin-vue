@@ -48,7 +48,6 @@
           {{ lc }}
         </th>
         <th>ACTIONS</th>
-        <th>STATUS</th>
       </tr>
       <tr v-for="(texts, code) in translations" :key="code">
         <td>{{ code }}</td>
@@ -62,13 +61,17 @@
         </td>
         <td>
           <!-- <span v-if="translations[code]['loading']">Saving...</span> -->
-          <button type="button" style="color: red" @click="onDelete(code)">
+          <button
+            type="button"
+            style="color: red"
+            @click="onDelete(code)"
+            v-if="!translations[code]['loading']"
+          >
             Delete
           </button>
-        </td>
-        <td>
-          <span v-if="translations[code]['loading']">Saving.</span>
-          <span v-if="translations[code]['saved']">Saved!</span>
+
+          <span v-if="translations[code]['loading'] == 'saving'">Saving.</span>
+          <span v-if="translations[code]['loading'] == 'saved'">Saved!</span>
         </td>
       </tr>
     </table>
@@ -153,7 +156,7 @@ export default class Categories extends Vue {
     this.languageCodes.forEach(async (lc) => {
       try {
         this.translationsCol.doc(lc).update({
-          [translationCode]: firebase.firestore.FieldValue.delete(),
+          [translationCode]: firebase.firestore.FieldValue.delete()
         });
         delete this.translations[translationCode];
       } catch (e) {
@@ -191,17 +194,16 @@ export default class Categories extends Vue {
 
   async saveText(code: string, lc: string) {
     if (this.translations[code]["loading"]) return;
-    this.translations[code]["loading"] = true;
+    this.translations[code]["loading"] = "saving";
     try {
       await this.translationsCol
         .doc(lc)
         .set({ [code]: this.translations[code][lc] ?? "" }, { merge: true });
 
       setTimeout(() => {
-        delete this.translations[code]["loading"];
-        this.translations[code]["saved"] = true;
+        this.translations[code]["loading"] = "saved";
         setTimeout(() => {
-          delete this.translations[code]["saved"];
+          delete this.translations[code]["loading"];
         }, 500);
       }, 500);
     } catch (e) {
