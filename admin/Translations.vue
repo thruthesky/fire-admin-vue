@@ -48,6 +48,7 @@
           {{ lc }}
         </th>
         <th>ACTIONS</th>
+        <th>STATUS</th>
       </tr>
       <tr v-for="(texts, code) in translations" :key="code">
         <td>{{ code }}</td>
@@ -60,10 +61,24 @@
           />
         </td>
         <td>
-          <span v-if="translations[code]['loading']">Saving...</span>
+          <!-- <span v-if="translations[code]['loading']">Saving...</span> -->
           <button type="button" style="color: red" @click="onDelete(code)">
             Delete
           </button>
+        </td>
+        <td>
+          <img
+            v-if="translations[code]['loading']"
+            src="@/assets/loading.gif"
+            height="50"
+            width="50"
+          />
+          <img
+            v-if="translations[code]['saved']"
+            src="@/assets/checked.png"
+            height="50"
+            width="50"
+          />
         </td>
       </tr>
     </table>
@@ -193,6 +208,10 @@ export default class Categories extends Vue {
 
       setTimeout(() => {
         delete this.translations[code]["loading"];
+        this.translations[code]["saved"] = true;
+        setTimeout(() => {
+          delete this.translations[code]["saved"];
+        }, 500);
       }, 500);
     } catch (e) {
       this.app.error(e);
