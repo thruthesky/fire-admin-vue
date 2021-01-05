@@ -39,8 +39,6 @@
       </tr>
     </table>
 
-    <!-- {{ translations }} -->
-
     <br />
     <h4>Translations table</h4>
     <table class="table">
@@ -69,9 +67,6 @@
         </td>
       </tr>
     </table>
-
-    <p v-show="translations.length < 1">No translations yet</p>
-    <p v-show="fetchingTranslations">Loading translation list ..</p>
   </div>
 </template>
 
@@ -147,39 +142,6 @@ export default class Categories extends Vue {
     }
   }
 
-  onSave(translationCode: string) {
-    if (this.translations[translationCode]["saving"]) return;
-    this.translations[translationCode]["saving"] = true;
-    setTimeout(() => {
-      this.languageCodes.forEach(async (lc) => {
-        const data: any = {};
-        if (!this.translations[translationCode]) {
-          data[translationCode] = "";
-        } else {
-          data[translationCode] = this.translations[translationCode][lc];
-        }
-
-        try {
-          await this.col.doc(lc).set(data, { merge: true });
-          if (!this.translations[translationCode]) {
-            this.translations[translationCode] = {};
-          }
-          this.translations[translationCode][lc] = data[translationCode];
-          this.newTranslationCode = "";
-        } catch (e) {
-          alert(e);
-        }
-      });
-      this.translations[translationCode]["saving"] = false;
-      this.translations[translationCode]["savingDone"] = true;
-      setTimeout(
-        () => (this.translations[translationCode]["savingDone"] = false),
-        1000
-      );
-      // alert("translations updated!");
-    }, 400);
-  }
-
   onDelete(translationCode: string) {
     const conf = confirm("Delete translation for " + translationCode + "?");
     if (!conf) return;
@@ -187,7 +149,7 @@ export default class Categories extends Vue {
     this.languageCodes.forEach(async (lc) => {
       try {
         this.col.doc(lc).update({
-          [translationCode]: firebase.firestore.FieldValue.delete()
+          [translationCode]: firebase.firestore.FieldValue.delete(),
         });
         delete this.translations[translationCode];
       } catch (e) {
@@ -198,16 +160,16 @@ export default class Categories extends Vue {
   }
 
   onAddNewTranslationCode() {
-    console.log(this.newTranslationCode, this.newTranslationTexts);
+    if (this.translations[this.newTranslationCode]) {
+      return alert("translation code already exists");
+    }
 
     this.languageCodes.forEach(async (lc) => {
-      /// TODO: warn if the same key exists.
-
       try {
         await this.translationsCol
           .doc(lc)
           .set(
-            { [this.newTranslationCode]: this.newTranslationTexts[lc] },
+            { [this.newTranslationCode]: this.newTranslationTexts[lc] ?? "" },
             { merge: true }
           );
 
@@ -220,16 +182,18 @@ export default class Categories extends Vue {
   }
 
   async saveText(code: string, lc: string) {
-    console.log(code, lc, this.translations[code][lc]);
-
     this.translations[code]["loading"] = true;
-    await this.translationsCol
-      .doc(lc)
-      .set({ [code]: this.translations[code][lc] }, { merge: true });
+    try {
+      await this.translationsCol
+        .doc(lc)
+        .set({ [code]: this.translations[code][lc] ?? "" }, { merge: true });
 
-    setTimeout(() => {
-      delete this.translations[code]["loading"];
-    }, 500);
+      setTimeout(() => {
+        delete this.translations[code]["loading"];
+      }, 500);
+    } catch (e) {
+      alert(e);
+    }
   }
 }
 </script>
