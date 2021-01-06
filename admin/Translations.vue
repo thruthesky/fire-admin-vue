@@ -17,7 +17,9 @@
             />
           </td>
           <td>
-            <button class="btn btn-success" @click="addNewLanguageCode">Add Language Code</button>
+            <button class="btn btn-success" @click="addNewLanguageCode">
+              Add Language Code
+            </button>
           </td>
         </tr>
       </tbody>
@@ -94,7 +96,7 @@
               @keyup="textChanges.next({ code: code, lc: lc })"
             />
           </td>
-          <td>
+          <td class="text-center">
             <button
               class="w-100 btn btn-danger"
               type="button"
@@ -250,6 +252,13 @@ export default class Categories extends Vue {
           },
           { merge: true }
         );
+
+        setTimeout(() => {
+          this.translations[newCode]["loading"] = "saved";
+          setTimeout(() => {
+            delete this.translations[newCode]["loading"];
+          }, 500);
+        }, 500);
       } catch (e) {
         this.app.error(e);
       }
