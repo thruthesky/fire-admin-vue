@@ -24,7 +24,7 @@
       <input
         type="number"
         id="postPerFetch"
-        v-model="category['no-of-posts-per-fetch']"
+        v-model.number="category['no-of-posts-per-fetch']"
       />
     </div>
     <br />
