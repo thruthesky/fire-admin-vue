@@ -7,8 +7,8 @@
       <tr>
         <td>
           <label for="newLanguange">New languange (code): </label>
-          <input type="text" name="newLanguange" v-model="newLanguangeCode" />
-          <button @click="addNewLanguageCode">Add Language Code</button>
+          <input type="text" name="newLanguange" v-model="newLanguage" />
+          <button @click="addNewLanguage">Add Language Code</button>
         </td>
       </tr>
     </table>
@@ -92,7 +92,7 @@ export default class Categories extends Vue {
   translationsCol = firebase.firestore().collection("translations");
   fetchingTranslations = false;
 
-  newLanguangeCode = "";
+  newLanguage = "";
   newTranslationCode = "";
   newTranslationTexts: any = {};
 
@@ -130,8 +130,8 @@ export default class Categories extends Vue {
     });
   }
 
-  async addNewLanguageCode() {
-    if (!this.newLanguangeCode) return;
+  async addNewLanguage() {
+    if (!this.newLanguage) return;
 
     const keys = Object.keys(this.translations);
     const data: any = {};
@@ -140,9 +140,9 @@ export default class Categories extends Vue {
     });
 
     try {
-      await this.translationsCol.doc(this.newLanguangeCode).set(data);
-      this.languageCodes.push(this.newLanguangeCode);
-      this.newLanguangeCode = "";
+      await this.translationsCol.doc(this.newLanguage).set(data);
+      this.languageCodes.push(this.newLanguage);
+      this.newLanguage = "";
       alert("New language code added!");
     } catch (e) {
       this.app.error(e);
@@ -167,7 +167,7 @@ export default class Categories extends Vue {
   }
 
   onAddNewTranslationCode() {
-    if (!this.newLanguangeCode) {
+    if (!this.newTranslationCode) {
       return this.app.error("Please enter translation code");
     }
 
