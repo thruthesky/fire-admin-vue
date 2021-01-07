@@ -29,7 +29,6 @@
         <th scope="col">TITLE</th>
         <th scope="col">DESCRIPTION</th>
         <th scope="col">ACTIONS</th>
-        <th scope="col">STATUS</th>
       </tr>
       <tr v-for="category in categories" :key="category.id">
         <td>{{ category.id }}</td>
@@ -48,12 +47,19 @@
           />
         </td>
         <td>
-          <a :href="'/admin/settings/forum/' + category.id">Settings</a> |
-          <button type="button" @click="onDelete(category.id)">Delete</button>
-        </td>
-        <td>
-          <span v-if="category['loading']">Saving.</span>
-          <span v-if="category['saved']">Saved!</span>
+          <span v-if="!category['loading']">
+            <a :href="'/admin/settings/forum/' + category.id">Settings</a>
+            |</span
+          >
+          <button
+            v-if="!category['loading']"
+            type="button"
+            @click="onDelete(category.id)"
+          >
+            Delete
+          </button>
+          <span v-if="category['loading'] == 'saving'">Saving!</span>
+          <span v-if="category['loading'] == 'saved'">Saved!</span>
         </td>
       </tr>
     </table>
@@ -126,7 +132,7 @@ export default class Categories extends Vue {
   async onSave(category: any) {
     const i = this.categories.findIndex((cat) => cat.id == category.id);
     if (this.categories[i]["loading"]) return;
-    this.categories[i]["loading"] = true;
+    this.categories[i]["loading"] = "saving";
 
     try {
       await this.categoriesCol.doc(category.id).update({
@@ -134,10 +140,10 @@ export default class Categories extends Vue {
         description: category.description ?? "",
       });
       setTimeout(() => {
-        delete this.categories[i]["loading"];
-        this.categories[i]["saved"] = true;
+        this.categories[i]["loading"] = "saved";
+
         setTimeout(() => {
-          delete this.categories[i]["saved"];
+          delete this.categories[i]["loading"];
         }, 500);
       }, 500);
     } catch (e) {

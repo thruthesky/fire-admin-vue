@@ -50,7 +50,17 @@
         <th>ACTIONS</th>
       </tr>
       <tr v-for="(texts, code) in translations" :key="code">
-        <td>{{ code }}</td>
+        <!-- <td>{{ code }}</td> -->
+        <td>
+          <input
+            class="input-item"
+            type="text"
+            :value="code"
+            @keyup="
+              textChanges.next({ code: code, newCode: $event.target.value })
+            "
+          />
+        </td>
         <td v-for="lc in languageCodes" :key="lc">
           <input
             class="input-item"
@@ -109,13 +119,20 @@ export default class Categories extends Vue {
     this.fetchTranslations();
 
     this.textChanges.pipe(debounceTime(400)).subscribe((data: any) => {
-      this.saveText(data.code, data.lc);
+      if (data.newCode) {
+        this.onUpdateTranslationCode(data.code, data.newCode);
+      } else {
+        this.saveText(data.code, data.lc);
+      }
     });
   }
 
   async fetchTranslations() {
     this.fetchingTranslations = true;
+
     const res = await this.translationsCol.onSnapshot((snapshots) => {
+      this.translations = {};
+
       snapshots.docs.forEach((doc) => {
         const lc = doc.id;
         if (!this.languageCodes.includes(lc)) this.languageCodes.push(lc);
@@ -124,7 +141,7 @@ export default class Categories extends Vue {
         codes = codes.sort();
         codes.forEach((code) => {
           if (!this.translations[code]) this.translations[code] = {};
-          this.translations[code][lc] = data[code];
+          Object.assign(this.translations[code], { [lc]: data[code] });
         });
       });
     });
@@ -156,7 +173,7 @@ export default class Categories extends Vue {
     this.languageCodes.forEach(async (lc) => {
       try {
         this.translationsCol.doc(lc).update({
-          [translationCode]: firebase.firestore.FieldValue.delete()
+          [translationCode]: firebase.firestore.FieldValue.delete(),
         });
         delete this.translations[translationCode];
       } catch (e) {
@@ -192,9 +209,30 @@ export default class Categories extends Vue {
     });
   }
 
+  onUpdateTranslationCode(code: string, newCode: string) {
+    if (this.translations[newCode]) {
+      return this.app.error("translation code already exists");
+    }
+
+    this.languageCodes.forEach(async (lc) => {
+      try {
+        await this.translationsCol.doc(lc).set(
+          {
+            [code]: firebase.firestore.FieldValue.delete(),
+            [newCode]: this.translations[code][lc] ?? "",
+          },
+          { merge: true }
+        );
+      } catch (e) {
+        this.app.error(e);
+      }
+    });
+  }
+
   async saveText(code: string, lc: string) {
     if (this.translations[code]["loading"]) return;
     this.translations[code]["loading"] = "saving";
+
     try {
       await this.translationsCol
         .doc(lc)
